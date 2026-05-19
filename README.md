@@ -18,9 +18,9 @@ The script searches through all material YAML files and returns matching:<br>
 ---
 
 ## Example
-Searching for a substitute for PET Grey
-Finding the correct RGB color Im using [FilamentDB](https://github.com/hyiger/filament-db/blob/main/README.md) to look it up.
+Searching for a substitute for PETG Grey
+Finding the correct RGB color.
 <p align="center">
-  <img src="images/addnorth_grey_6a6c6e.png" width="800"><br>
-  Addnorth Grey PETG
+  <img src="images/addnorth_grey.png" width="800"><br>
+  Addnorth PETG Grey
 </p>
