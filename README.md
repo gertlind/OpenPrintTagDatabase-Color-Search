@@ -18,9 +18,12 @@ The script searches through all material YAML files and returns matching:<br>
 ---
 
 ## Example
-Searching for a substitute for PETG Grey
-Finding the correct RGB color.
+Searching for a substitute for Brand Addnorth PETG Grey.
 <p align="center">
   <img src="images/addnorth_grey.png" width="800"><br>
   Addnorth PETG Grey
+</p>
+Now we have the correct RGB value to search: #6a6c6eff.
+<p align="center">
+  <img src="images/petg_6a6c6e.png" width="800"><br>
 </p>
