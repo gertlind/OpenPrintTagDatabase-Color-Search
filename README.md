@@ -23,7 +23,8 @@ Searching for a substitute for Brand Addnorth PETG Grey.
   <img src="images/addnorth_grey.png" width="800"><br>
   Addnorth PETG Grey
 </p>
-Now we have the correct RGB value to search: #6a6c6eff.
+Now we have the correct RGB value to search: #6a6c6eff.<BR>
 <p align="center">
   <img src="images/petg_6a6c6e.png" width="800"><br>
+  23 Brands for the correct color (cut of the picture to save space.)
 </p>
