@@ -18,13 +18,29 @@ The script searches through all material YAML files and returns matching:<br>
 ---
 
 ## Example
-Searching for a substitute for Brand Addnorth PETG Grey.
+Searching for a substitute for brand Addnorth PETG Grey.
 <p align="center">
   <img src="images/addnorth_grey.png" width="800"><br>
   Addnorth PETG Grey
 </p>
-Now we have the correct RGB value to search: #6a6c6eff.<BR>
+<br>
+Now we have the correct RGB value to search: #6a6c6eff.<br><br>
 <p align="center">
   <img src="images/petg_6a6c6e.png" width="800"><br>
   23 Brands for the correct color (cut of the picture to save space.)
 </p>
+
+## Installation
+```bash
+git clone https://github.com/gertlind/OpenPrintTagDatabase-Color-Search.git
+cd OpenPrintTagDatabase-Color-Search
+git clone https://github.com/OpenPrintTag/openprinttag-database.git
+```
+### Create virtual environment
+```text
+- python3 -m venv .venv
+- Activate the virtual environment:
+  - source .venv/bin/activate
+- Install requirements
+  - pip install -r requirements.txt
+```
