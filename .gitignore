@@ -1,0 +1,7 @@
+# Virtual environment
+.venv/
+venv/
+# OpenPrintTag Database folder
+openprinttag-database/
+# misc
+.DS_Store
