@@ -14,7 +14,7 @@ The script searches through all material YAML files and returns matching:<br>
 - material types<br>
 - color hex values<br>
 - Picture of the filament color and webpage link.
-- - (Not available for all filaments in the database)
+  - (Not available for all filaments in the database)
 ---
 
 ## Example
