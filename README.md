@@ -44,3 +44,8 @@ git clone https://github.com/OpenPrintTag/openprinttag-database.git
 - Install requirements
   - pip install -r requirements.txt
 ```
+
+run the script:
+```bash
+python optdsearch.py
+```
