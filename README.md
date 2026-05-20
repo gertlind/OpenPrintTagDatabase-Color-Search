@@ -49,3 +49,4 @@ run the script:
 ```bash
 python optdsearch.py
 ```
+Or as a [service](docs/service.md)
