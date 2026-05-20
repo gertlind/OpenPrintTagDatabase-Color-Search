@@ -48,5 +48,9 @@ git clone https://github.com/OpenPrintTag/openprinttag-database.git
 run the script:
 ```bash
 python optdsearch.py
+
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.X.X:5001
 ```
 Or as a [service](docs/service.md)
