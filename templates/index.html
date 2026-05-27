@@ -12,6 +12,18 @@
             color: #111;
         }
 
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            height: 250px;
+            width: auto;
+        }
+
         h1 {
             font-size: 32px;
             margin-bottom: 28px;
@@ -122,128 +134,153 @@
         a {
             color: #0066dd;
             font-weight: 500;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
         }
 
         .no-results {
             font-size: 20px;
             margin-top: 30px;
         }
-
-        @media (max-width: 1100px) {
-            form {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            button {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 700px) {
-            form {
-                grid-template-columns: 1fr;
-            }
-
-            table {
-                font-size: 14px;
-            }
-
-            th, td {
-                padding: 12px;
-                font-size: 14px;
-            }
-
-            h1 {
-                font-size: 26px;
-            }
-        }
     </style>
 </head>
 
 <body>
-
-<h1>
-    <a href="https://github.com/OpenPrintTag/openprinttag-specification"
-       target="_blank"
-       style="text-decoration: none; color: inherit;">
-        OpenPrintTagDatabase
+<div class="topbar">
+    <div>
+        <h1>
+            <a href="https://github.com/gertlind/OpenPrintTagDatabase-Color-Search"
+               target="_blank"
+               style="text-decoration: none; color: inherit;">
+                OpenPrintTagDatabase
+            </a>
+            Filament Search
+        </h1>
+        <p style="margin-top: -10px; color: #555; font-size: 18px;">
+            {{ stats.brands }} brands •
+            {{ stats.materials }} materials •
+            {{ stats.filaments }} filaments
+        </p>
+    </div>
+    <a href="https://github.com/gertlind/OpenPrintTagDatabase-Color-Search"
+       target="_blank">
+        <img src="{{ url_for('static', filename='images/opt.svg') }}"
+             class="logo">
     </a>
-    Filament Search
-</h1>
+</div>
 
 <form method="get">
+
     <div class="field">
-        <label>Brand</label>
-        <input type="text" name="manufacturer" value="{{ manufacturer }}" placeholder="Ex: Prusament">
+        <label>Manufacturer</label>
+        <input type="text"
+               name="manufacturer"
+               value="{{ manufacturer }}">
     </div>
 
     <div class="field">
         <label>Material</label>
-        <input type="text" name="material" value="{{ material }}" placeholder="Ex: PETG">
+        <input type="text"
+               name="material"
+               value="{{ material }}">
     </div>
 
     <div class="field">
         <label>Name / Color name</label>
-        <input type="text" name="name" value="{{ name }}" placeholder="Ex: Yellow">
+        <input type="text"
+               name="name"
+               value="{{ name }}">
     </div>
 
     <div class="field">
         <label>HEX Color</label>
-        <input type="text" name="color" value="{{ color }}" placeholder="Ex: e4ff33ff">
+        <input type="text"
+               name="color"
+               value="{{ color }}">
     </div>
 
-    <button type="submit">Search</button>
+    <button type="submit">Sök</button>
+
 </form>
 
 {% if results %}
-    <h2>Hits: {{ results|length }}</h2>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Brand</th>
-                <th>Name</th>
-                <th>Color</th>
-                <th>Photo</th>
-                <th>URL</th>
-            </tr>
-        </thead>
+<h2>Träffar: {{ results|length }}</h2>
 
-        <tbody>
-        {% for r in results %}
-            <tr>
-                <td>{{ r.brand }}</td>
-                <td>{{ r.name }}</td>
+<table>
 
-                <td>
-                    {% if r.color %}
-                        <div class="color-cell">
-                            <span class="color-box" style="background-color: {{ r.color[:7] }}"></span>
-                            <span>{{ r.color }}</span>
-                        </div>
-                    {% endif %}
-                </td>
+    <thead>
+        <tr>
+            <th>Brand</th>
+            <th>Name</th>
+            <th>Color</th>
+            <th>Photo</th>
+            <th>Url</th>
+            <th>Properties</th>
+        </tr>
+    </thead>
 
-                <td>
-                    {% if r.photo %}
-                        <a href="{{ r.photo }}" target="_blank">
-                            <img src="{{ r.photo }}" alt="Photo">
-                        </a>
-                    {% endif %}
-                </td>
+    <tbody>
 
-                <td>
-                    {% if r.url %}
-                        <a href="{{ r.url }}" target="_blank">Link ↗</a>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% for r in results %}
+
+    <tr>
+
+        <td>{{ r.brand }}</td>
+
+        <td>{{ r.name }}</td>
+
+        <td>
+            {% if r.color %}
+                <div class="color-cell">
+                    <span class="color-box"
+                          style="background-color: {{ r.color[:7] }}">
+                    </span>
+
+                    <span>{{ r.color }}</span>
+                </div>
+            {% endif %}
+        </td>
+
+        <td>
+            {% if r.photo %}
+                <a href="{{ r.photo }}" target="_blank">
+                    <img src="{{ r.photo }}" alt="Photo">
+                </a>
+            {% endif %}
+        </td>
+
+        <td>
+            {% if r.url %}
+                <a href="{{ r.url }}" target="_blank">
+                    Link ↗
+                </a>
+            {% endif %}
+        </td>
+
+        <td>
+            {% if r.has_properties %}
+                <a href="{{ url_for('properties_page', file=r.file) }}">
+                    Properties
+                </a>
+            {% endif %}
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
 
 {% elif manufacturer or material or name or color %}
-    <p class="no-results">Inga träffar.</p>
+
+<p class="no-results">Inga träffar.</p>
+
 {% endif %}
 
 </body>

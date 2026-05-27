@@ -27,7 +27,7 @@ def load_yaml_files(folder):
     items = []
 
     if not folder.exists():
-        print(f"Database folder does not exists: {folder}")
+        print(f"Databasmappen finns inte: {folder}")
         return items
 
     files = list(folder.rglob("*.yaml")) + list(folder.rglob("*.yml"))
@@ -48,76 +48,37 @@ def load_yaml_files(folder):
                         items.append(entry)
 
         except Exception as e:
-            print(f"Error reading {file}: {e}")
+            print(f"Fel vid läsning av {file}: {e}")
 
     return items
 
 
 def text_match(search, value):
-    if not search:
-        return False
-
-    if not value:
+    if not search or not value:
         return False
 
     return search.lower() in str(value).lower()
 
 
-def get_nested_value(data, keys):
-    current = data
-
-    for key in keys:
-        if not isinstance(current, dict):
-            return ""
-
-        current = current.get(key)
-
-    return current or ""
-
-
 def get_color_hex(item):
-    # primary_color:
-    #   color_rgba: '#e5e0e3ff'
     if isinstance(item.get("primary_color"), dict):
         if item["primary_color"].get("color_rgba"):
-            return normalize_hex(
-                item["primary_color"].get("color_rgba")
-            )
+            return normalize_hex(item["primary_color"].get("color_rgba"))
 
-    # Direct field
-    for key in [
-        "hex",
-        "color_hex",
-        "colour_hex",
-        "color_rgba"
-    ]:
+    for key in ["hex", "color_hex", "colour_hex", "color_rgba"]:
         if item.get(key):
             return normalize_hex(item.get(key))
 
-    # color: "#ffffff"
     if isinstance(item.get("color"), str):
         return normalize_hex(item.get("color"))
 
-    # color:
-    #   hex: "#ffffff"
     if isinstance(item.get("color"), dict):
         for key in ["hex", "rgba", "value"]:
             if item["color"].get(key):
                 return normalize_hex(item["color"].get(key))
 
-    # colors:
-    #   - hex: "#ffffff"
-    if isinstance(item.get("colors"), list):
-        for c in item["colors"]:
-            if isinstance(c, str):
-                return normalize_hex(c)
-
-            if isinstance(c, dict):
-                for key in ["hex", "rgba", "value"]:
-                    if c.get(key):
-                        return normalize_hex(c.get(key))
-
     return ""
+
 
 def get_brand(item):
     brand = (
@@ -126,14 +87,18 @@ def get_brand(item):
         or item.get("vendor")
         or ""
     )
+
     if not brand and isinstance(item.get("brand"), dict):
         brand = item["brand"].get("slug", "")
+
     if not brand:
         brand = item.get("brand", "")
-    # Nicer frame
+
     if isinstance(brand, str):
         brand = brand.replace("-", " ").title()
+
     return brand
+
 
 def get_material(item):
     material = (
@@ -144,10 +109,10 @@ def get_material(item):
     )
 
     if isinstance(material, dict):
-
         material = ""
 
     return str(material).strip().upper()
+
 
 def get_name(item):
     return (
@@ -159,23 +124,26 @@ def get_name(item):
 
 
 def find_url(item):
-    for key in [
-        "url",
-        "website",
-        "link",
-        "productUrl",
-        "product_url"
-    ]:
+    for key in ["url", "website", "link", "productUrl", "product_url"]:
         if item.get(key):
             return item.get(key)
 
     urls = item.get("urls")
 
-    if isinstance(urls, list) and urls:
-        return urls[0]
-
     if isinstance(urls, dict):
         for value in urls.values():
+            if value:
+                return value
+
+    if isinstance(urls, list):
+        for value in urls:
+            if value:
+                return value
+
+    links = item.get("links")
+
+    if isinstance(links, dict):
+        for value in links.values():
             if value:
                 return value
 
@@ -199,13 +167,37 @@ def find_photo(item):
 
     return ""
 
+
+def get_database_stats():
+    filaments = load_yaml_files(DB_DIR)
+
+    brands = set()
+    materials = set()
+
+    for item in filaments:
+        brand = get_brand(item)
+        material = get_material(item)
+
+        if brand:
+            brands.add(brand)
+
+        if material:
+            materials.add(material)
+
+    return {
+        "brands": len(brands),
+        "materials": len(materials),
+        "filaments": len(filaments),
+    }
+
+
 def search_filaments(manufacturer="", material="", name="", color=""):
     search_color = normalize_hex(color)
 
     results = []
     filaments = load_yaml_files(DB_DIR)
 
-    print(f"Loaded {len(filaments)} YAML-object")
+    print(f"Laddade {len(filaments)} YAML-objekt")
 
     for item in filaments:
         brand = get_brand(item)
@@ -227,19 +219,21 @@ def search_filaments(manufacturer="", material="", name="", color=""):
         if color:
             checks.append(filament_color == search_color)
 
-        # All fields must match
         if checks and all(checks):
             results.append({
                 "brand": brand,
-                "material": mat,
                 "name": filament_name,
                 "color": filament_color,
                 "url": find_url(item),
                 "photo": find_photo(item),
                 "file": item.get("_file", ""),
+                "has_properties": bool(item.get("properties")),
             })
+
     results.sort(key=lambda x: (x["brand"], x["name"]))
+
     return results
+
 
 @app.route("/", methods=["GET"])
 def index():
@@ -258,15 +252,43 @@ def index():
             color=color
         )
 
+    stats = get_database_stats()
+
     return render_template(
         "index.html",
         results=results,
         manufacturer=manufacturer,
         material=material,
         name=name,
-        color=color
+        color=color,
+        stats=stats
+    )
+
+
+@app.route("/properties/<path:file>")
+def properties_page(file):
+    yaml_file = DB_DIR / file
+
+    if not yaml_file.exists():
+        return "Filen hittades inte", 404
+
+    with open(yaml_file, "r", encoding="utf-8") as f:
+        item = yaml.safe_load(f)
+
+    properties = item.get("properties", {})
+
+    if not properties:
+        return "Inga properties finns för detta filament", 404
+
+    return render_template(
+        "properties.html",
+        brand=get_brand(item),
+        name=get_name(item),
+        color=get_color_hex(item),
+        photo=find_photo(item),
+        properties=properties
     )
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=False)
